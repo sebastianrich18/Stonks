@@ -1,7 +1,7 @@
 """
 
 things to do:
-    Cashing price data so theres less api requests
+    Caching price data so theres less api requests
     Save time and purchise price of stock
     OAUTH?
 
