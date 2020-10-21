@@ -11,8 +11,8 @@ things to do:
 import requests
 import json
 import time
+from secret import *
 
-apikey = "RO9GBKGRSOFBTC3TVP5C8ZNRSAAYGSWA"
 
 class Account:
     def __init__(self, json, cash=None):
