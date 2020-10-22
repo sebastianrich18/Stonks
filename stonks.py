@@ -6,12 +6,10 @@ things to do:
 
 """
 
-
 import requests
 import json
 import time
 from secret import apikey
-
 
 class Account:
     def __init__(self, json, cash=None):
@@ -63,7 +61,7 @@ class Account:
         if(self.cash >= price):
             if ticker not in tickers:
                 self.cash -= price
-                self.positions.append([ticker, shares])
+                self.positions.append([ticker, shares, price / shares, int(time.time())])
             else:
                 self.cash -= price
                 i = 0
@@ -104,8 +102,15 @@ class Account:
                 break
             i += 1
 
-priceCache = {}
+    def getPL(self):
+        pl=[]
+        for i in range(len(self.positions)):
+            pruchPrice = self.positions[i][2]
+            mktPrice = getPrice(self.positions[i][0])
+            pl.append((mktPrice - pruchPrice) * self.positions[i][1])
+        return pl
 
+priceCache = {}
 def getPrice(ticker):
     if ticker not in priceCache.keys():
         url = "https://api.tdameritrade.com/v1/marketdata/" + ticker + "/quotes"
@@ -120,4 +125,4 @@ def getPrice(ticker):
 
 
 account = Account(Account.getAccount())
-print(account)
+print(account.getPL())
