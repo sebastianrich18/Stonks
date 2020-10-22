@@ -1,7 +1,6 @@
 """
 
 things to do:
-    Caching price data so theres less api requests
     Save time and purchise price of stock
     OAUTH?
 
@@ -11,7 +10,7 @@ things to do:
 import requests
 import json
 import time
-from secret import *
+from secret import apikey
 
 
 class Account:
@@ -33,7 +32,6 @@ class Account:
             string += "\t" + str(x[1]) + " shares of " + x[0] + " worth $" + str(getPrice(x[0]) * x[1]) + "\n"
         return string
 
-
     @staticmethod
     def getAccount():
         with open('account.json') as f:
@@ -49,9 +47,6 @@ class Account:
 
         with open('account.json', 'w') as f:
             json.dump(obj, f)
-
-    def getValue(self):
-        total = self.cash
 
     def getValue(self):
         total = self.cash
@@ -90,36 +85,38 @@ class Account:
             tickers.append(x[0])
         i = 0
         for x in tickers:
+
             if(ticker == x):
                 if self.positions[i][1] - shares > 0:
                     self.positions[i][1] -= shares
-                    self.cash += getPrice(ticker) * shares
+                    self.cash += price
 
                 elif self.positions[i][1] - shares == 0:
                     self.positions.remove(self.positions[i])
-                    self.cash += getPrice(ticker) * shares
+                    self.cash += price
 
                 elif self.positions[i][1] - shares < 0:
                     print("You only hold ", self.positions[i][1], "shares")
+                    break
             
                 self.saveAccount()
-                print("Sold", ticker, "for", getPrice(ticker) * shares)
+                print("Sold", ticker, "for", price)
                 break
             i += 1
 
+priceCache = {}
+
 def getPrice(ticker):
-    url = "https://api.tdameritrade.com/v1/marketdata/" + ticker + "/quotes"
-    params = {"apikey": apikey}
-    response = requests.get(url + "?apikey=" + apikey)
-    # timer = 0
-    # while response.status_code == 204:
-    #     time.sleep(3)
-    #     timer += 10
-    #     if timer > time:
-    #         break
-    #     if response.status_code == 200:
-    #         break
-    return json.loads(response.text).get(ticker).get('lastPrice')
+    if ticker not in priceCache.keys():
+        url = "https://api.tdameritrade.com/v1/marketdata/" + ticker + "/quotes"
+        params = {"apikey": apikey}
+        print("making api call")
+        response = requests.get(url + "?apikey=" + apikey)
+        price = json.loads(response.text).get(ticker).get('lastPrice')
+        priceCache[ticker] = price
+        return price
+    else:
+        return priceCache[ticker]
 
 
 account = Account(Account.getAccount())
