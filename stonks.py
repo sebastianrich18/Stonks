@@ -1,7 +1,6 @@
 """
 
 things to do:
-    Save time and purchise price of stock
     OAUTH?
 
 """
@@ -123,6 +122,11 @@ def getPrice(ticker):
     else:
         return priceCache[ticker]
 
+def getCandles(ticker): # returns 10 day 1 min candles
+    url = "https://api.tdameritrade.com/v1/marketdata/" + ticker + "/pricehistory?apikey=RO9GBKGRSOFBTC3TVP5C8ZNRSAAYGSWA&periodType=day&frequencyType=minute&needExtendedHoursData=true"
+    data = requests.get(url).text
+    return json.loads(data)
+
 
 account = Account(Account.getAccount())
-print(account.getPL())
+print(getCandles("AMD"))
